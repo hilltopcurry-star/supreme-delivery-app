@@ -1,13 +1,11 @@
 import 'dart:convert';
  import 'package:http/http.dart' as http;
  import 'package:shared_preferences/shared_preferences.dart';
- 
 
  class ApiService {
   static const String baseUrl = 'http://10.0.2.2:5000';
- 
 
-  Future<dynamic> login(String username, String password) async {
+  static Future<Map<String, dynamic>> login(String username, String password) async {
   final response = await http.post(
   Uri.parse('$baseUrl/auth/login'),
   headers: <String, String>{
@@ -18,26 +16,22 @@ import 'dart:convert';
   'password': password,
   }),
   );
- 
 
   if (response.statusCode == 200) {
-  // Store the token securely
-  final Map<String, dynamic> data = jsonDecode(response.body);
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('token', data['token']);
- 
-
-  return data;
+  final responseData = jsonDecode(response.body);
+  if (responseData.containsKey('token')) {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('token', responseData['token']);
+  }
+  return responseData;
   } else {
-  throw Exception('Failed to login: ${response.body}');
+  throw Exception('Failed to login: ${response.statusCode}');
   }
   }
- 
 
-  Future<List<dynamic>> fetchRestaurants() async {
-  final prefs = await SharedPreferences.getInstance();
+  static Future<List<dynamic>> fetchRestaurants() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
- 
 
   final response = await http.get(
   Uri.parse('$baseUrl/restaurants'),
@@ -46,20 +40,17 @@ import 'dart:convert';
   'Authorization': 'Bearer $token',
   },
   );
- 
 
   if (response.statusCode == 200) {
   return jsonDecode(response.body);
   } else {
-  throw Exception('Failed to load restaurants');
+  throw Exception('Failed to fetch restaurants: ${response.statusCode}');
   }
   }
- 
 
-  Future<dynamic> placeOrder(Map<String, dynamic> orderData) async {
-  final prefs = await SharedPreferences.getInstance();
+  static Future<Map<String, dynamic>> placeOrder(Map<String, dynamic> orderData) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
- 
 
   final response = await http.post(
   Uri.parse('$baseUrl/orders'),
@@ -69,23 +60,20 @@ import 'dart:convert';
   },
   body: jsonEncode(orderData),
   );
- 
 
   if (response.statusCode == 201) {
   return jsonDecode(response.body);
   } else {
-  throw Exception('Failed to place order: ${response.body}');
+  throw Exception('Failed to place order: ${response.statusCode}');
   }
   }
- 
 
-  Future<void> updateDriverLocation(double latitude, double longitude) async {
-  final prefs = await SharedPreferences.getInstance();
+  static Future<void> updateDriverLocation(String driverId, double latitude, double longitude) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
- 
 
   final response = await http.post(
-  Uri.parse('$baseUrl/driver/location'),
+  Uri.parse('$baseUrl/drivers/$driverId/location'),
   headers: <String, String>{
   'Content-Type': 'application/json; charset=UTF-8',
   'Authorization': 'Bearer $token',
@@ -95,10 +83,9 @@ import 'dart:convert';
   'longitude': longitude,
   }),
   );
- 
 
   if (response.statusCode != 200) {
-  throw Exception('Failed to update driver location: ${response.body}');
+  throw Exception('Failed to update driver location: ${response.statusCode}');
   }
   }
  }

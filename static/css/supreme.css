@@ -42,26 +42,6 @@ body {
     font-weight: bold;
 }
 
-.status-badge.pending {
-    background-color: #ffc107; /* Yellow */
-    color: #000;
-}
-
-.status-badge.accepted {
-    background-color: #28a745; /* Green */
-    color: #fff;
-}
-
-.status-badge.rejected {
-    background-color: #dc3545; /* Red */
-    color: #fff;
-}
-
-.status-badge.delivered {
-    background-color: #007bff; /* Blue */
-    color: #fff;
-}
-
 .navbar {
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.03);
@@ -87,7 +67,7 @@ body {
 
 .table thead th {
     background-color: #f2f2f2;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 2px solid #ddd;
 }
 
 .table-responsive {
@@ -95,36 +75,39 @@ body {
 }
 
 .pagination .page-link {
-    color: var(--primary);
+    color: var(--dark);
 }
 
 .pagination .page-item.active .page-link {
     background-color: var(--primary);
     border-color: var(--primary);
-    color: #fff;
+    color: white;
 }
 
-.alert-primary {
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-    color: #155724;
+.alert {
+    margin-bottom: 1rem;
 }
 
-.alert-danger {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    color: #721c24;
-}
-
-/* Custom styles for specific elements (example) */
-.restaurant-image {
-    max-width: 150px;
-    height: auto;
-}
-
-.order-item {
+/* Custom Styles for Delivery App */
+.delivery-item {
+    border: 1px solid #eee;
+    padding: 15px;
     margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ddd;
     border-radius: 5px;
+}
+
+.delivery-item h5 {
+    margin-bottom: 5px;
+}
+
+.delivery-item p {
+    margin-bottom: 8px;
+}
+
+.footer {
+    background-color: var(--dark);
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 20px;
 }

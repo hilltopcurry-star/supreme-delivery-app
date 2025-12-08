@@ -1,83 +1,84 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enum
-from sqlalchemy.orm import relationship
-import enum
-from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from enum import Enum
+import datetime
 
 db = SQLAlchemy()
 
-class UserRole(enum.Enum):
-    ADMIN = 'admin'
+class Role(Enum):
+    USER = 'user'
     RESTAURANT = 'restaurant'
     DRIVER = 'driver'
-    CUSTOMER = 'customer'
-
-class OrderStatus(enum.Enum):
-    PENDING = 'pending'
-    ACCEPTED = 'accepted'
-    IN_TRANSIT = 'in_transit'
-    DELIVERED = 'delivered'
-    CANCELLED = 'cancelled'
+    ADMIN = 'admin'
 
 class User(db.Model):
-    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
-    role = db.Column(db.Enum(UserRole), nullable=False, default=UserRole.CUSTOMER)
+    password_hash = db.Column(db.String(128))
+    role = db.Column(db.Enum(Role), default=Role.USER)
     restaurant = db.relationship('Restaurant', backref='owner', uselist=False)
-    driver_location = db.relationship('DriverLocation', backref='driver', uselist=False)
     orders = db.relationship('Order', backref='customer')
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return f'<User {self.username}>'
 
 class Restaurant(db.Model):
-    __tablename__ = 'restaurants'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    address = db.Column(db.String(200), nullable=False)
-    phone_number = db.Column(db.String(20), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    menu_items = db.relationship('MenuItem', backref='restaurant')
-    orders = db.relationship('Order', backref='restaurant')
+    address = db.Column(db.String(200))
+    phone_number = db.Column(db.String(20))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    menu_items = db.relationship('Menu', backref='restaurant')
 
     def __repr__(self):
         return f'<Restaurant {self.name}>'
 
-class MenuItem(db.Model):
-    __tablename__ = 'menu_items'
+class Menu(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200))
     price = db.Column(db.Float, nullable=False)
-    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'), nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=False)
 
     def __repr__(self):
-        return f'<MenuItem {self.name}>'
+        return f'<Menu Item {self.name}>'
+
+class OrderStatus(Enum):
+    PENDING = 'pending'
+    ACCEPTED = 'accepted'
+    PREPARING = 'preparing'
+    EN_ROUTE = 'en_route'
+    DELIVERED = 'delivered'
+    CANCELLED = 'cancelled'
 
 class Order(db.Model):
-    __tablename__ = 'orders'
     id = db.Column(db.Integer, primary_key=True)
-    customer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'), nullable=False)
-    order_date = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.Enum(OrderStatus), nullable=False, default=OrderStatus.PENDING)
+    customer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=False)
+    items = db.Column(db.String(500), nullable=False) # Store item IDs as comma-separated string
     total_amount = db.Column(db.Float, nullable=False)
-    driver_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    driver = db.relationship('User', foreign_keys=[driver_id])
+    order_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    status = db.Column(db.Enum(OrderStatus), default=OrderStatus.PENDING)
+    driver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) # Assuming drivers are also users
+    restaurant = db.relationship('Restaurant')
 
     def __repr__(self):
         return f'<Order {self.id}>'
 
 class DriverLocation(db.Model):
-    __tablename__ = 'driver_locations'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    driver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
-    last_update = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    driver = db.relationship('User')
 
     def __repr__(self):
-        return f'<DriverLocation {self.user_id}>'
+        return f'<DriverLocation {self.driver_id}>'

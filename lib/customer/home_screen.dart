@@ -1,50 +1,33 @@
 import 'package:flutter/material.dart';
  import 'package:http/http.dart' as http;
  import 'dart:convert';
- 
 
  class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
  }
- 
 
  class _HomeScreenState extends State<HomeScreen> {
-  List<dynamic> categories = [];
-  List<dynamic> restaurants = [];
- 
+  List<String> categories = ['Pizza', 'Burgers', 'Sushi', 'Pasta', 'Salads'];
+  List<Map<String, dynamic>> restaurants = [];
 
   @override
   void initState() {
   super.initState();
-  fetchCategories();
   fetchRestaurants();
   }
- 
-
-  Future<void> fetchCategories() async {
-  final response = await http.get(Uri.parse('http://10.0.2.2:5000/api/categories'));
-  if (response.statusCode == 200) {
-  setState(() {
-  categories = jsonDecode(response.body);
-  });
-  } else {
-  print('Failed to load categories');
-  }
-  }
- 
 
   Future<void> fetchRestaurants() async {
-  final response = await http.get(Uri.parse('http://10.0.2.2:5000/api/restaurants'));
+  final response = await http.get(Uri.parse('http://10.0.2.2:5000/restaurants')); // Replace with actual API endpoint
   if (response.statusCode == 200) {
   setState(() {
-  restaurants = jsonDecode(response.body);
+  restaurants = List<Map<String, dynamic>>.from(jsonDecode(response.body));
   });
   } else {
-  print('Failed to load restaurants');
+  // Handle error
+  print('Failed to load restaurants: ${response.statusCode}');
   }
   }
- 
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +39,7 @@ import 'package:flutter/material.dart';
   children: [
   // Category List
   Container(
-  height: 80,
+  height: 50,
   child: ListView.builder(
   scrollDirection: Axis.horizontal,
   itemCount: categories.length,
@@ -64,19 +47,18 @@ import 'package:flutter/material.dart';
   return Padding(
   padding: const EdgeInsets.all(8.0),
   child: Chip(
-  label: Text(categories[index]['name']),
+  label: Text(categories[index]),
   ),
   );
   },
   ),
   ),
- 
-
   // Restaurant List
   Expanded(
   child: ListView.builder(
   itemCount: restaurants.length,
   itemBuilder: (context, index) {
+  final restaurant = restaurants[index];
   return Card(
   margin: EdgeInsets.all(8.0),
   child: Padding(
@@ -85,16 +67,13 @@ import 'package:flutter/material.dart';
   crossAxisAlignment: CrossAxisAlignment.start,
   children: [
   Text(
-  restaurants[index]['name'],
-  style: TextStyle(
-  fontSize: 18,
-  fontWeight: FontWeight.bold,
-  ),
+  restaurant['name'] ?? 'Restaurant Name',
+  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
   ),
   SizedBox(height: 4),
-  Text(restaurants[index]['cuisine']),
+  Text(restaurant['cuisine'] ?? 'Cuisine Type'),
   SizedBox(height: 4),
-  Text('Rating: ${restaurants[index]['rating']}'),
+  Text('Rating: ${restaurant['rating'] ?? 'N/A'}'),
   ],
   ),
   ),
@@ -123,8 +102,6 @@ import 'package:flutter/material.dart';
   label: 'Profile',
   ),
   ],
-  selectedItemColor: Colors.blue,
-  unselectedItemColor: Colors.grey,
   ),
   );
   }

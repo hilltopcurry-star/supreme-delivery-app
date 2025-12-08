@@ -3,95 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Supreme Delivery</title>
+    <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #f4f6f9; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-card { width: 400px; padding: 30px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .nav-pills .nav-link.active { background-color: #00B14F; }
-        .nav-link { color: #333; }
-        .btn-primary { background-color: #00B14F; border: none; }
-        .btn-primary:hover { background-color: #009e46; }
+        body {
+            background-color: #f8f9fa;
+        }
+        .login-container {
+            margin-top: 50px;
+        }
     </style>
 </head>
 <body>
-
-    <div class="login-card">
-        <h3 class="text-center mb-4" style="color: #00B14F; font-weight: bold;">GRAB FOOD</h3>
-        
-        <ul class="nav nav-pills mb-4 justify-content-center" id="pills-tab">
-            <li class="nav-item">
-                <button class="nav-link active" onclick="setRole('customer')">Customer</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" onclick="setRole('restaurant')">Restaurant</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" onclick="setRole('driver')">Driver</button>
-            </li>
-        </ul>
-
-        <div class="mb-3">
-            <label>Username</label>
-            <input type="text" id="username" class="form-control" placeholder="e.g. admin or user">
-        </div>
-        <div class="mb-3">
-            <label>Password</label>
-            <input type="password" id="password" class="form-control" placeholder="123">
-        </div>
-        
-        <button onclick="login()" class="btn btn-primary w-100 py-2">Login</button>
-        <p id="msg" class="text-center text-danger mt-3 small"></p>
-        
-        <div class="text-center mt-3">
-            <small class="text-muted">Current Role: <span id="currentRole">customer</span></small>
+    <div class="container login-container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="customer-tab" data-bs-toggle="tab" data-bs-target="#customer" type="button" role="tab" aria-controls="customer" aria-selected="true">Customer</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="restaurant-tab" data-bs-toggle="tab" data-bs-target="#restaurant" type="button" role="tab" aria-controls="restaurant" aria-selected="false">Restaurant</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="driver-tab" data-bs-toggle="tab" data-bs-target="#driver" type="button" role="tab" aria-controls="driver" aria-selected="false">Driver</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="customer" role="tabpanel" aria-labelledby="customer-tab">
+                                <form action="{{ API_BASE }}/auth/login" method="post">
+                                    <input type="hidden" name="role" value="customer">
+                                    <div class="mb-3">
+                                        <label for="customer_email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="customer_email" name="email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="customer_password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="customer_password" name="password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Login as Customer</button>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="restaurant" role="tabpanel" aria-labelledby="restaurant-tab">
+                                <form action="{{ API_BASE }}/auth/login" method="post">
+                                    <input type="hidden" name="role" value="restaurant">
+                                    <div class="mb-3">
+                                        <label for="restaurant_email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="restaurant_email" name="email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="restaurant_password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="restaurant_password" name="password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Login as Restaurant</button>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="driver" role="tabpanel" aria-labelledby="driver-tab">
+                                <form action="{{ API_BASE }}/auth/login" method="post">
+                                    <input type="hidden" name="role" value="driver">
+                                    <div class="mb-3">
+                                        <label for="driver_email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="driver_email" name="email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="driver_password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="driver_password" name="password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Login as Driver</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script>
-        let role = 'customer';
-        function setRole(r) { 
-            role = r; 
-            document.getElementById('currentRole').innerText = r;
-            // Visual Update for tabs
-            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
-        }
-
-        async function login() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            const msg = document.getElementById('msg');
-
-            msg.innerText = "Checking...";
-
-            try {
-                // FIX IS HERE: Adding Content-Type Header
-                const res = await fetch('/auth/login', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json'  // <--- YEH MISSING THA
-                    },
-                    body: JSON.stringify({ username: u, password: p, role: role })
-                });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    msg.style.color = "green";
-                    msg.innerText = "Success! Redirecting...";
-                    setTimeout(() => {
-                        window.location.href = data.redirect;
-                    }, 1000);
-                } else {
-                    msg.style.color = "red";
-                    msg.innerText = data.error || "Login Failed";
-                }
-            } catch (err) {
-                msg.style.color = "red";
-                msg.innerText = "Server Error. Is Python running?";
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
