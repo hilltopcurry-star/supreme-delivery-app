@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+ {% block head %}
+     <title>Restaurant Dashboard</title>
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ {% endblock %}
+
+ {% block body %}
+     <div class="container mt-5">
+         <h1>Restaurant Dashboard</h1>
+
+         <div class="row">
+             <div class="col-md-4">
+                 <div class="card bg-primary text-white mb-3">
+                     <div class="card-body">
+                         <h5 class="card-title">Today's Sales</h5>
+                         <p class="card-text">${{ today_sales }}</p>
+                     </div>
+                 </div>
+             </div>
+             <div class="col-md-4">
+                 <div class="card bg-success text-white mb-3">
+                     <div class="card-body">
+                         <h5 class="card-title">Active Orders</h5>
+                         <p class="card-text">{{ active_orders }}</p>
+                     </div>
+                 </div>
+             </div>
+             <div class="col-md-4">
+                 <div class="card bg-warning text-dark mb-3">
+                     <div class="card-body">
+                         <h5 class="card-title">Total Menu Items</h5>
+                         <p class="card-text">{{ total_menu_items }}</p>
+                     </div>
+                 </div>
+             </div>
+         </div>
+
+         <div class="row mt-4">
+             <div class="col-md-12">
+                 <div class="card">
+                     <div class="card-header">
+                         Weekly Revenue
+                     </div>
+                     <div class="card-body">
+                         <canvas id="weeklyRevenueChart"></canvas>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <script>
+         const revenueData = {{ weekly_revenue | tojson }};
+         const labels = Object.keys(revenueData);
+         const data = Object.values(revenueData);
+
+         const ctx = document.getElementById('weeklyRevenueChart').getContext('2d');
+         const myChart = new Chart(ctx, {
+             type: 'bar',
+             data: {
+                 labels: labels,
+                 datasets: [{
+                     label: 'Revenue',
+                     data: data,
+                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                     borderColor: 'rgba(54, 162, 235, 1)',
+                     borderWidth: 1
+                 }]
+             },
+             options: {
+                 scales: {
+                     y: {
+                         beginAtZero: true
+                     }
+                 }
+             }
+         });
+     </script>
+ {% endblock %}
