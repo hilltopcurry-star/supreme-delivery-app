@@ -6,4 +6,4 @@ Flask-JWT-Extended
 flask-socketio
 gunicorn
 requests
-email-validator
+email-validator==2.2.0
