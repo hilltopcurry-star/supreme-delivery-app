@@ -1,4 +1,9 @@
 import os
+
+print("🔧 FIXING INDENTATION ERROR...")
+
+# --- CLEAN APP CODE ---
+app_code = """import os
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -49,12 +54,7 @@ def login():
     role = "customer"
     redirect_url = "/customer/home"
     
-    
-    if username == "owner":
-        role = "super_admin"
-        redirect_url = "/admin/super"
-    elif username == "admin": 
- 
+    if username == "admin": 
         role = "restaurant"
         redirect_url = "/restaurant/dashboard"
     elif username == "driver":
@@ -73,43 +73,6 @@ def login():
 def handle_connect():
     print('⚡ Client Connected')
 
-
-@app.route('/customer/menu')
-def customer_menu():
-    return render_template('customer/menu.html')
-
-@app.route('/customer/cart')
-def customer_cart():
-    return render_template('customer/cart.html')
-
-@app.route('/api/orders', methods=['POST'])
-def place_order():
-    try:
-        data = request.get_json()
-        # Database mein save karein
-        new_order = Order(status="Preparing", total=data.get('total', 0.0))
-        db.session.add(new_order)
-        db.session.commit()
-        
-        # Real-time alert (Console only for now)
-        print(f"🔔 NEW ORDER #{new_order.id} RECEIVED: ${new_order.total}")
-        
-        return jsonify({"status": "success", "order_id": new_order.id}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/restaurant/orders')
-def get_all_orders():
-    # Database se saare orders nikalo (Latest pehle)
-    orders = Order.query.order_by(Order.id.desc()).all()
-    return jsonify([
-        {'id': o.id, 'status': o.status, 'total': o.total, 'items': 'Zinger Burger, Fries'} 
-        for o in orders
-    ])
-
-@app.route('/admin/super')
-def super_admin_dashboard():
-    return render_template('admin/super_dashboard.html')
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
@@ -122,3 +85,9 @@ if __name__ == '__main__':
             
     print("🍔 SUPREME DELIVERY ONLINE: http://127.0.0.1:5000")
     socketio.run(app, debug=True, port=5000, allow_unsafe_werkzeug=True)
+"""
+
+with open("app.py", "w", encoding="utf-8") as f:
+    f.write(app_code)
+
+print("✅ app.py FIXED. Indentation corrected.")

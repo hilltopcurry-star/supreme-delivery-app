@@ -1,4 +1,33 @@
-<!DOCTYPE html>
+import os
+
+print("🔧 ACTIVATING RESTAURANT DASHBOARD...")
+
+# --- 1. UPDATE APP.PY (Add API to fetch all orders) ---
+app_path = "app.py"
+if os.path.exists(app_path):
+    with open(app_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    
+    # API Route add karna agar nahi hai
+    if "/api/restaurant/orders" not in content:
+        new_route = """
+@app.route('/api/restaurant/orders')
+def get_all_orders():
+    # Database se saare orders nikalo (Latest pehle)
+    orders = Order.query.order_by(Order.id.desc()).all()
+    return jsonify([
+        {'id': o.id, 'status': o.status, 'total': o.total, 'items': 'Zinger Burger, Fries'} 
+        for o in orders
+    ])
+"""
+        parts = content.split("if __name__")
+        new_content = parts[0] + new_route + "if __name__" + parts[1]
+        
+        with open(app_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+
+# --- 2. UPDATE DASHBOARD.HTML (Show Real Data) ---
+dashboard_html = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -88,3 +117,10 @@
     </script>
 </body>
 </html>
+"""
+
+os.makedirs("templates/restaurant", exist_ok=True)
+with open("templates/restaurant/dashboard.html", "w", encoding="utf-8") as f:
+    f.write(dashboard_html)
+
+print("✅ RESTAURANT DASHBOARD UPDATED. Showing Real Database Orders.")

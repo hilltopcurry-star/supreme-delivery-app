@@ -1,96 +1,56 @@
 <!DOCTYPE html>
- <html lang="en">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu - Supreme Delivery</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-  body {
-  font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
-  }
-  .restaurant-header {
-  background-color: #343a40;
-  color: white;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 5px;
-  }
-  .menu-item {
-  margin-bottom: 15px;
-  padding: 10px;
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-  background-color: white;
-  }
-  .cart-summary {
-  padding: 15px;
-  background-color: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-  }
-  .cart-item {
-  margin-bottom: 10px;
-  }
-  .footer {
-  text-align: center;
-  margin-top: 30px;
-  padding: 10px;
-  background-color: #f0f0f0;
-  }
-  </style>
- </head>
- <body>
-  <div class="container">
-  <div class="restaurant-header">
-  <h1>{{ restaurant.name }}</h1>
-  <p>{{ restaurant.address }}</p>
-  </div>
- 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu - Supreme Delivery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .menu-header { background: white; padding: 20px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        .item-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #00B14F; color: white; padding: 15px; display: none; justify-content: space-between; align-items: center; cursor: pointer; }
+    </style>
+</head>
+<body>
 
-  <div class="row">
-  <div class="col-md-8">
-  <h2>Menu</h2>
-  {% for item in menu_items %}
-  <div class="menu-item">
-  <h4>{{ item.name }}</h4>
-  <p>{{ item.description }}</p>
-  <p>Price: ${{ item.price }}</p>
-  <form action="{{ url_for('customer.add_to_cart', item_id=item.id) }}" method="post">
-  <button type="submit" class="btn btn-primary">Add to Cart</button>
-  </form>
-  </div>
-  {% endfor %}
-  </div>
- 
+    <div class="menu-header d-flex justify-content-between align-items-center">
+        <a href="/customer/home" class="btn btn-light rounded-circle">←</a>
+        <h5 class="m-0 fw-bold">Burger King Supreme</h5>
+        <span><i class="fas fa-search"></i></span>
+    </div>
 
-  <div class="col-md-4">
-  <div class="cart-summary">
-  <h2>Cart Summary</h2>
-  {% if cart_items %}
-  {% for cart_item in cart_items %}
-  <div class="cart-item">
-  {{ cart_item.name }} - ${{ cart_item.price }}
-  </div>
-  {% endfor %}
-  <hr>
-  <p>Total: ${{ cart_total }}</p>
-  <a href="{{ url_for('customer.view_cart') }}" class="btn btn-success">View Cart</a>
-  {% else %}
-  <p>Your cart is empty.</p>
-  {% endif %}
-  </div>
-  </div>
-  </div>
-  </div>
- 
+    <div class="container mt-4" style="padding-bottom: 80px;">
+        <h6 class="text-muted mb-3">POPULAR ITEMS</h6>
+        
+        <div class="item-card">
+            <div><h6 class="fw-bold m-0">Zinger Burger</h6><div class="mt-2 fw-bold">$5.50</div></div>
+            <button class="btn btn-outline-success btn-sm" onclick="addToCart(5.50)">ADD</button>
+        </div>
+        <div class="item-card">
+            <div><h6 class="fw-bold m-0">Beef Whopper</h6><div class="mt-2 fw-bold">$8.00</div></div>
+            <button class="btn btn-outline-success btn-sm" onclick="addToCart(8.00)">ADD</button>
+        </div>
+        <div class="item-card">
+            <div><h6 class="fw-bold m-0">Large Fries</h6><div class="mt-2 fw-bold">$3.00</div></div>
+            <button class="btn btn-outline-success btn-sm" onclick="addToCart(3.00)">ADD</button>
+        </div>
+    </div>
 
-  <div class="footer">
-  <p>&copy; 2024 Supreme Delivery</p>
-  </div>
- 
+    <div class="cart-bar" id="cartBar" onclick="window.location.href='/customer/cart'">
+        <span class="fw-bold"><span id="count">0</span> items</span>
+        <span class="fw-bold">View Cart • $<span id="total">0.00</span></span>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
- </body>
- </html>
+    <script>
+        let total = 0;
+        let count = 0;
+        function addToCart(price) {
+            total += price;
+            count++;
+            document.getElementById('count').innerText = count;
+            document.getElementById('total').innerText = total.toFixed(2);
+            document.getElementById('cartBar').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

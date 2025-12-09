@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+import os
+
+print("🔧 FIXING LOGIN PAGE HEADERS...")
+
+# --- NEW LOGIN.HTML (With Headers Fix) ---
+login_html = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -19,7 +24,7 @@
     <div class="login-card">
         <h3 class="text-center mb-4" style="color: #00B14F; font-weight: bold;">GRAB FOOD</h3>
         
-        <ul class="nav nav-pills mb-4 justify-content-center" id="pills-tab">
+        <ul class="nav nav-pills mb-4 justify-content-center">
             <li class="nav-item">
                 <a class="nav-link active" onclick="setRole('customer', this)">Customer</a>
             </li>
@@ -44,7 +49,7 @@
         <p id="msg" class="text-center text-danger mt-3 small"></p>
         
         <div class="text-center mt-3">
-            <small class="text-muted">Current Role: <span id="currentRole">customer</span></small>
+            <small class="text-muted">Logging in as: <strong id="roleDisplay">customer</strong></small>
         </div>
     </div>
 
@@ -53,8 +58,8 @@
 
         function setRole(role, element) {
             currentRole = role;
-            document.getElementById('currentRole').innerText = role;
-            // Visual Update for tabs
+            document.getElementById('roleDisplay').innerText = role;
+            // Tabs visual update
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
         }
@@ -65,7 +70,7 @@
             const msg = document.getElementById('msg');
 
             if(!u || !p) {
-                msg.innerText = "Please fill all fields.";
+                msg.innerText = "Please fill all fields";
                 return;
             }
 
@@ -73,11 +78,17 @@
             msg.style.color = "blue";
 
             try {
-                // Asli API Request bhejo
+                // FIX IS HERE: Adding 'Content-Type': 'application/json'
                 const res = await fetch('/auth/login', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: u, password: p, role: currentRole })
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ 
+                        username: u, 
+                        password: p, 
+                        role: currentRole 
+                    })
                 });
 
                 const data = await res.json();
@@ -85,10 +96,6 @@
                 if (res.ok) {
                     msg.style.color = "green";
                     msg.innerText = "Success! Redirecting...";
-                    // Token save karo
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('role', data.role);
-                    
                     setTimeout(() => {
                         window.location.href = data.redirect;
                     }, 1000);
@@ -104,3 +111,22 @@
     </script>
 </body>
 </html>
+"""
+
+# Ensure templates folder exists
+if not os.path.exists('templates'):
+    os.makedirs('templates')
+
+with open("templates/login.html", "w", encoding="utf-8") as f:
+    f.write(login_html)
+
+print("✅ login.html FIXED. Headers added.")
+"""
+
+**Step 3: Save aur Run** 🚀
+1.  Notepad **Save (`Ctrl+S`)** karein aur band kar dein.
+2.  Terminal mein yeh commands chalayen:
+
+```powershell
+python fix_login_header.py
+python app.py

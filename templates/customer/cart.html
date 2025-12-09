@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart - Supreme Delivery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .cart-footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h3>My Cart</h3>
+        <div class="card p-3 mt-3 border-0 shadow-sm">
+            <div class="d-flex justify-content-between mb-3">
+                <span>1x Zinger Burger</span>
+                <b>$5.50</b>
+            </div>
+             <div class="d-flex justify-content-between mb-3">
+                <span>1x Large Fries</span>
+                <b>$3.00</b>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between">
+                <h5>Total</h5>
+                <h5 class="text-success">$8.50</h5>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h6>DELIVERY ADDRESS</h6>
+            <div class="card p-3 border-0 shadow-sm">
+                <i class="fas fa-map-marker-alt text-danger"></i> Home • 123 Main Street, New York
+            </div>
+        </div>
+    </div>
+
+    <div class="cart-footer">
+        <button id="orderBtn" class="btn btn-success w-100 py-3 fw-bold" onclick="placeRealOrder()">PLACE ORDER ($8.50)</button>
+        <p id="msg" class="text-center mt-2 small"></p>
+    </div>
+
+    <script>
+        async function placeRealOrder() {
+            const btn = document.getElementById('orderBtn');
+            const msg = document.getElementById('msg');
+            
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+
+            try {
+                // Asli API Call
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        items: [{name: 'Zinger', price: 5.50}, {name: 'Fries', price: 3.00}],
+                        total: 8.50 
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    msg.innerText = "Order #" + data.order_id + " Placed! Redirecting...";
+                    msg.style.color = "green";
+                    setTimeout(() => {
+                        window.location.href = "/customer/home";
+                    }, 2000);
+                } else {
+                    msg.innerText = "Failed: " + data.error;
+                    msg.style.color = "red";
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                msg.innerText = "Server Error";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

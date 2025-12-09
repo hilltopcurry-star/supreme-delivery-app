@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+import os
+
+print("🔧 ACTIVATING CUSTOMER INTERACTIONS...")
+
+# --- 1. UPDATED HOME.HTML (Clickable Restaurants) ---
+home_html = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -79,3 +84,109 @@
 
 </body>
 </html>
+"""
+
+# --- 2. UPDATED MENU.HTML (Add to Cart Logic) ---
+menu_html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu - Supreme Delivery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .menu-header { background: white; padding: 20px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        .item-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #00B14F; color: white; padding: 15px; display: none; justify-content: space-between; align-items: center; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="menu-header d-flex justify-content-between align-items-center">
+        <a href="/customer/home" class="btn btn-light rounded-circle">←</a>
+        <h5 class="m-0 fw-bold">Burger King Supreme</h5>
+        <span><i class="fas fa-search"></i></span>
+    </div>
+
+    <div class="container mt-4">
+        <h6 class="text-muted mb-3">POPULAR ITEMS</h6>
+
+        <div class="item-card">
+            <div>
+                <h6 class="fw-bold m-0">Zinger Burger</h6>
+                <p class="text-muted small m-0">Spicy crispy chicken with cheese.</p>
+                <div class="mt-2 fw-bold">$5.50</div>
+            </div>
+            <button class="btn btn-outline-success btn-sm" onclick="addToCart(5.50)">ADD</button>
+        </div>
+
+        <div class="item-card">
+            <div>
+                <h6 class="fw-bold m-0">Beef Whopper</h6>
+                <p class="text-muted small m-0">Double patty with extra sauce.</p>
+                <div class="mt-2 fw-bold">$8.00</div>
+            </div>
+            <button class="btn btn-outline-success btn-sm" onclick="addToCart(8.00)">ADD</button>
+        </div>
+
+         <div class="item-card">
+            <div>
+                <h6 class="fw-bold m-0">Large Fries</h6>
+                <p class="text-muted small m-0">Crispy salted fries.</p>
+                <div class="mt-2 fw-bold">$3.00</div>
+            </div>
+            <button class="btn btn-outline-success btn-sm" onclick="addToCart(3.00)">ADD</button>
+        </div>
+    </div>
+
+    <div class="cart-bar" id="cartBar" onclick="alert('Order Placed Successfully! (Demo)')">
+        <span class="fw-bold"><span id="count">0</span> items</span>
+        <span class="fw-bold">View Cart • $<span id="total">0.00</span></span>
+    </div>
+
+    <script>
+        let total = 0;
+        let count = 0;
+
+        function addToCart(price) {
+            total += price;
+            count++;
+            document.getElementById('count').innerText = count;
+            document.getElementById('total').innerText = total.toFixed(2);
+            document.getElementById('cartBar').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
+"""
+
+# Save Templates
+os.makedirs("templates/customer", exist_ok=True)
+with open("templates/customer/home.html", "w", encoding="utf-8") as f:
+    f.write(home_html)
+
+with open("templates/customer/menu.html", "w", encoding="utf-8") as f:
+    f.write(menu_html)
+
+
+# --- 3. UPDATE APP.PY (Ensure Routes Exist) ---
+app_path = "app.py"
+if os.path.exists(app_path):
+    with open(app_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    
+    # Agar Menu Route nahi hai to add kar do
+    if "/customer/menu" not in content:
+        new_route = """
+@app.route('/customer/menu')
+def customer_menu():
+    return render_template('customer/menu.html')
+"""
+        # Insert before main run
+        parts = content.split("if __name__")
+        new_content = parts[0] + new_route + "if __name__" + parts[1]
+        
+        with open(app_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+            
+print("✅ CUSTOMER APP ACTIVATED. Menu links are now working.")
